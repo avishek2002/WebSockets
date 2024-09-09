@@ -15,6 +15,7 @@ Integers are used to represent server functions to ensure consistency between th
 1. Retrieve capital from the server for a user specified country
 2. Retrieve estimated population from the server for a user specified country
 3. Add a country, capital pair (specified by the user) to the servers memory
+
 -1. Exit the program
 
 Additionally, some HTTP response status codes have been used to provide response back to the client.
