@@ -24,9 +24,13 @@ public class Server{
 
     public static void main(String[] args) {
         // user configurable tcp port
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter the TCP port for the socket to listen on : ");
-        int portNumber = scanner.nextInt();
+        int portNumber = 0;
+        try {
+            portNumber = Integer.parseInt(args[0]);
+        } catch (Exception e) {
+            System.out.println("Incorrect syntax! \nTo run the program : java Server.java  <port number>");
+            System.exit(1);
+        }
         populateCapitals();
 
         try (ServerSocket serverSocket = new ServerSocket(portNumber)){
@@ -36,6 +40,8 @@ public class Server{
                     PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
                     BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 ){
+                    // notify the client that the connection has been established
+                    out.println("Connection established successfully.");
                     // main method for the server to call the client indicated function
                     runFunctions(out, in);
                 } catch (IOException e){
@@ -56,6 +62,10 @@ public class Server{
                 case "1" -> out.println(getCapital(in.readLine()));
                 case "2" -> out.println(getPopulation(in.readLine()));
                 case "3" -> out.println(addCapital(in.readLine()));
+                case "-1" -> {
+                    System.out.println("Connection terminated successfully.");
+                    System.exit(1);
+                }
                 default -> {
                     System.out.println(functionNumber);
                     throw new AssertionError();

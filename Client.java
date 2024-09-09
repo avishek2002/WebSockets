@@ -19,26 +19,30 @@ public class Client{
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-
-        // configurable hostname and port  number
-        System.out.print("Enter hostname : ");
-        String hostName = scanner.nextLine();
-        System.out.print("Enter TCP port to connect socket to : ");
-        int portNumber = scanner.nextInt();
+        String hostName = "";
+        int portNumber = 0;
+        try {
+            //configurable hostname and port number through command line parameter
+            hostName = args[0];
+            portNumber = Integer.parseInt(args[1]);
+        } catch (Exception e) {
+            System.out.println("Incorrect syntax! \nTo run the program : java Client.java <hostname> <port number>");
+        }
+        
 
         try (
             Socket socket = new Socket(hostName, portNumber);
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-            
         ){
+            System.out.println(in.readLine());
             // main method to run the client cli
             run(out, in, stdIn, scanner);
-        } catch (UnknownHostException e){
+        } catch (UnknownHostException e){ // incorrect hostname specified; or server not running
             System.err.println("Don't know about host " + hostName);
             System.exit(1);
-        } catch (IOException e){
+        } catch (IOException e){ // IO connection failure
             System.err.println("Couldn't get I/O for the connection to " + hostName);
             System.exit(1);
         }
@@ -56,8 +60,12 @@ public class Client{
                     printPopulation(out, in, stdIn, scanner);
                 case 3 -> // calls a method to ask user to enter country name and capital city; and adds it to the servers memory
                     addCountryCapitalPair(out, in, stdIn, scanner);
-                case -1 -> System.exit(1);
-                default -> System.out.println("Selection out of range!");
+                case -1 -> {
+                    out.println("-1");
+                    System.out.println("Connection terminated successfully.");
+                    System.exit(1);
+                }
+                default -> {System.out.println("Selection out of range!"); continue;}
             }
         }
     }
@@ -70,16 +78,23 @@ public class Client{
         System.out.println("3 : Add new country, capital city pair");
         System.out.println("-1 : Exit");
         System.out.print("Enter your choice : ");
-        int choice = scanner.nextInt();
+        String choice = scanner.nextLine();
+        // handling exception where user does not enter an integer
+        try {
+            int value = Integer.parseInt(choice);
+        } catch (NumberFormatException e){
+            System.out.println("The input must be an integer specified above");
+            System.out.println("*".repeat(50));
+            return 0;
+        }
         System.out.println("*".repeat(50));
-        return choice;
+        return Integer.parseInt(choice);
     }
 
     // method to ask server for the capital of a user specified country, if present in the server memory
     public static void printCapital(PrintWriter out, BufferedReader in, BufferedReader stdIn, Scanner scanner) throws IOException{
         out.println("1");
         System.out.print("Enter name of country to find its capital : ");
-        scanner.nextLine();
         String country = scanner.nextLine();
         out.println(country);
         String serverResponse = in.readLine();
@@ -97,7 +112,6 @@ public class Client{
     public static void printPopulation(PrintWriter out, BufferedReader in, BufferedReader stdIn, Scanner scanner) throws IOException{
         out.println("2");
         System.out.print("Enter name of country to find its population : ");
-        scanner.nextLine();
         String country = scanner.nextLine();
         out.println(country);
         String serverResponse = in.readLine();
@@ -115,7 +129,6 @@ public class Client{
     public static void addCountryCapitalPair(PrintWriter out, BufferedReader in, BufferedReader stdIn, Scanner scanner) throws IOException{
         out.println("3");
         System.out.print("Enter name of country to add : ");
-        scanner.nextLine();
         String country = scanner.nextLine();
         System.out.print("Enter " + country + "'s capital : ");
         String capital = scanner.nextLine();
