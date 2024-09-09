@@ -16,7 +16,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.Scanner;
 
 public class Server{
     // csv data stored in a hashmap (needs to be populated from the main method), inaccessible from outside this class
